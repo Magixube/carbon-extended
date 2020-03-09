@@ -21,8 +21,8 @@ class CarbonExtended extends Carbon
     protected $timeToCarbonFormats = [
         'TIME5.' => 'H:i',
         'TIME8.' => 'H:i:s',
-        'TIME11.2' => 'H:i:s.v',
-        'TIME12.3' => 'H:i:s.v',
+        'TIME11.2' => 'H:i:s.u',
+        'TIME12.3' => 'H:i:s.u',
     ];
 
     protected $dateYearMonthToCarbonFormats = [
@@ -244,13 +244,18 @@ class CarbonExtended extends Carbon
      */
     public function formatTime(string $extendedFormat, string $timeFormat, string $carbonFormat)
     {
-        $timeValue = $this->format($carbonFormat);
+
+        $precision = (int) substr($extendedFormat, -1);
+
+        $timeValue = $this->roundMicrosecond(pow(10, 6-$precision))->format($carbonFormat);
         
+        if ($precision) {
+            $timeValue = substr($timeValue, 0, 9 + $precision);
+        }
 
         if ($timeValue[0] === '0') {
             $timeValue = substr($timeValue, 1);
         }
-
         return str_replace($timeFormat, $timeValue, $extendedFormat);
     }
 
