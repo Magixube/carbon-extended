@@ -62,6 +62,25 @@ class CarbonExtendedTest extends TestCase
     }
 
     /**
+     * Formatting date time with customized format time test
+     *
+     * @dataProvider formatTime2DataProvider
+     *
+     * @param string $date
+     * @param string $customizedFormat
+     * @param string $expected
+     *
+     * @return void
+     */
+    public function testTime2Format(string $date, string $customizedFormat, string $expected)
+    {
+        $carbonExtended = CarbonExtended::createFromFormat('Y-m-d h:i:s.v A', $date);
+        $result = $carbonExtended->extendedFormat($customizedFormat);
+
+        $this->assertSame($expected, $result);
+    }
+
+    /**
      * The extended formats data provider
      *
      * @return array
@@ -76,6 +95,8 @@ class CarbonExtendedTest extends TestCase
             ['2012-05-01', 'JULIAN5.', '12122'],
             ['2012-05-01', 'JULIAN7.', '2012122'],
             ['2013-03-17', 'PDJULG4.', '2013076F'],
+            ['2013-03-17', 'YYMM5.', '13M03'],
+            ['2013-03-17', 'YYMM7.', '2013M03'],
         ];
     }
 
@@ -95,6 +116,37 @@ class CarbonExtendedTest extends TestCase
             ['2013-03-17 04:24:43', 'TIMEAMPM5.', '4 AM'],
             ['2013-03-17 04:24:43', 'TIMEAMPM7.', '4:24 AM'],
             ['2013-03-17 04:24:43', 'TIMEAMPM11.', '4:24:43 AM'],
+        ];
+    }
+
+    /**
+     * The extended time format data provider
+     *
+     * @return array
+     */
+    public function formatTime2DataProvider()
+    {
+        return [
+            ['2013-03-17 04:24:43.123 PM', 'TIME5.', '16:24'],
+            ['2013-03-17 04:24:43.123 AM', 'TIME5.', '4:24'],
+            ['2013-03-17 04:24:43.123 PM', 'TIME8.', '16:24:43'],
+            ['2013-03-17 04:24:43.123 AM', 'TIME8.', '4:24:43'],
+            ['2013-03-17 04:24:43.123 PM', 'TIME11.2', '16:24:43.12'],
+            ['2013-03-17 04:24:43.123 AM', 'TIME11.2', '4:24:43.12'],
+            ['2013-03-17 04:24:43.123 PM', 'TIME12.3', '16:24:43.123'],
+            ['2013-03-17 04:24:43.123 AM', 'TIME12.3', '4:24:43.123'],
+
+        ];
+    }
+
+    /**
+     * The extended time format data provider
+     *
+     * @return array
+     */
+    public function formatTime3DataProvider()
+    {
+        return [
         ];
     }
 }

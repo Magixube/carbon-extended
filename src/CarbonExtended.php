@@ -18,6 +18,18 @@ class CarbonExtended extends Carbon
         'TIMEAMPM11.' => 'h:i:s A',
     ];
 
+    protected $timeToCarbonFormats = [
+        'TIME5.' => 'H:i',
+        'TIME8.' => 'H:i:s',
+        'TIME11.2' => 'H:i:s.v',
+        'TIME12.3' => 'H:i:s.v',
+    ];
+
+    protected $dateYearMonthToCarbonFormats = [
+        'YYMM5.' => 'y\Mm',
+        'YYMM7.' => 'Y\Mm',
+    ];
+
     protected $quarterFormat = 'QTR.';
 
     protected $quarterRomanFormat = 'QTRR.';
@@ -159,6 +171,21 @@ class CarbonExtended extends Carbon
     }
 
     /**
+     * Formatting packed julian date with customized PDJULG4. format
+     *
+     * @param string $extendedFormat
+     * @param string $yymmDateFormat
+     *
+     * @return string
+     */
+    public function formatYearMonth(string $extendedFormat, string $yymmDateFormat, string $carbonFormat)
+    {
+        $dateYymmValue = $this->format($carbonFormat);
+
+        return str_replace($yymmDateFormat, $dateYymmValue, $extendedFormat);
+    }
+
+    /**
      * Formatting SAS date value with customized SAS_DATE_VALUE format
      */
     public function formatSasDateValue(string $extendedFormat, string $sasDateValueFormat)
@@ -207,6 +234,27 @@ class CarbonExtended extends Carbon
     }
 
     /**
+     * Format time with AM and PM
+     *
+     * @param string $extendedFormat
+     * @param string $timeFormat
+     * @param string $carbonFormat
+     *
+     * @return string
+     */
+    public function formatTime(string $extendedFormat, string $timeFormat, string $carbonFormat)
+    {
+        $timeValue = $this->format($carbonFormat);
+        
+
+        if ($timeValue[0] === '0') {
+            $timeValue = substr($timeValue, 1);
+        }
+
+        return str_replace($timeFormat, $timeValue, $extendedFormat);
+    }
+
+    /**
      * using extended or normal format with given format string
      *
      * @param string $extendedFormat
@@ -245,9 +293,23 @@ class CarbonExtended extends Carbon
             $formattedResult = $this->formatPackedJulianDate($extendedFormat, $this->packedJulianDateFormat);
         }
 
+        foreach ($this->dateYearMonthToCarbonFormats as $yearMonthFormat => $carbonFormat) {
+            if (stristr($extendedFormat, $yearMonthFormat) !== false) {
+                $formattedResult = $this->formatYearMonth($extendedFormat, $yearMonthFormat, $carbonFormat);
+                break;
+            }
+        }
+
         foreach ($this->timeAmPmToCarbonFormats as $timeAmPmFormat => $carbonFormat) {
             if (stristr($extendedFormat, $timeAmPmFormat) !== false) {
                 $formattedResult = $this->formatTimeAmPm($extendedFormat, $timeAmPmFormat, $carbonFormat);
+                break;
+            }
+        }
+
+        foreach ($this->timeToCarbonFormats as $timeFormat => $carbonFormat) {
+            if (stristr($extendedFormat, $timeFormat) !== false) {
+                $formattedResult = $this->formatTime($extendedFormat, $timeFormat, $carbonFormat);
                 break;
             }
         }
